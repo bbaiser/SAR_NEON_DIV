@@ -39,7 +39,7 @@ sp_rich_beetle = data_beetle |>
             elevation = mean(elevation, na.rm = T),
             land_class = unique(nlcdClass)[1],
             .groups = "drop")|> 
-            filter(!((n_observation<5)))#remove plots with less than 5 observations
+            filter(!((n_observation<4)))#remove plots with less than 5 observations
             
 good_plots<-as.data.frame(sp_rich_beetle$plotID)#make a list of plot with over 5 sampling events
 colnames(good_plots)<-"plotID"
@@ -61,8 +61,8 @@ sp_rich_bird = data_bird |>
             elevation = mean(elevation, na.rm = T),
             land_class = unique(nlcdClass)[1],
             .groups = "drop") |># WHAT DOES THIS LINE DO?
-            filter(!((pointID==21))) #REMOVE SINGLE Points from small sites
-            #filter(!((n_observation<4)))#remove plots with less than 5 observations
+            filter(!((pointID==21)))|> #REMOVE SINGLE Points from small sites
+            filter(!((n_observation<4)))#remove plots with less than 5 observations
        
 plot(sp_rich_bird$n_observation,sp_rich_bird$n_sp)
 good_plots<-as.data.frame(unique((sp_rich_bird$plotID)))#make a
@@ -84,7 +84,7 @@ sp_rich_plant_400m2 = data_plant |>
             land_class = unique(nlcdClass)[1],
             .groups = "drop")|> 
              group_by(siteID, plotID) |> 
-             filter(!((n_observation<3)))
+             filter(!((n_observation<4)))
 
 good_plots<-as.data.frame(unique((sp_rich_plant_400m2$plotID)))#make a list of plotw with over 10 sampling events
 colnames(good_plots)<-"plotID"
@@ -95,7 +95,7 @@ write.csv(good_plots,"Data/good_plant_plots.csv")
 View(data_small_mammal)
 
 
-d
+
 
 sp_rich_mammal = data_small_mammal |> 
             group_by(siteID, plotID) |> 
@@ -107,7 +107,7 @@ sp_rich_mammal = data_small_mammal |>
             elevation = mean(elevation, na.rm = T),
             land_class = unique(nlcdClass)[1],
             .groups = "drop")|> 
-             filter(!((n_observation<3)))#remove plots with less than 3observations
+             filter(!((n_observation<4)))#remove plots with less than 3observations
 
 hist(sp_rich_mammal$n_observation,breaks = 20)
 
