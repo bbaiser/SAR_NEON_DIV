@@ -11,8 +11,51 @@ library(geosphere)
 library(tidyverse)
 library(neonDivData)
 
-# Export file path
-export_path <- 'G:/Shared Drives/MacrosystemsBiodiversity/data/neon_spatial/L1'
+
+####data####
+#beetles
+good_beetle<-read.csv("Data/beetle_plot_rar.csv")%>% # plots that have been filtered for completeness
+             filter(fit=="TRUE")%>%#filter for plots where obs fell with is 95% CIs of asymptotes
+ 
+
+beetle_df <- data_beetle %>% 
+              select(siteID, plotID, latitude, longitude) %>% 
+              filter(plotID%in%good_beetle$plotID) %>% 
+              distinct(.)
+#bird
+good_bird<-read.csv("Data/bird_plot_rar.csv")%>% # plots that have been filtered for completeness
+           filter(fit=="TRUE")%>%
+           rename(plotID=siteID)#filter for plots where obs fell with is 95% CIs of asymptotes
+           
+  
+bird_df <- data_bird %>% 
+           select(siteID, plotID, latitude, longitude) %>% 
+           filter(plotID%in%good_bird$plotID) %>% 
+           distinct(.)
+
+
+#plants
+good_plant<-read.csv("Data/plant_plot_rar.csv")%>% # plots that have been filtered for completeness
+            filter(fit=="TRUE")%>%#filter for plots where obs fell with is 95% CIs of asymptotes
+            rename(plotID=siteID)
+
+plant_df <- data_plant %>% 
+            select(siteID, plotID, latitude, longitude) %>% 
+            filter(plotID%in%good_plant$plotID) %>% 
+            distinct(.)
+     
+#small mammal
+good_mammal<-read.csv("data/mammal_plot_rar.csv",row=1)%>%#beetle plots that have been filtered for completeness
+             filter(fit=="TRUE")
+
+mammal_df <- data_small_mammal %>% 
+              select(siteID, plotID, latitude, longitude) %>% 
+              filter(plotID%in%good_mammal$plotID) %>% 
+              distinct(.)
+
+
+
+####function####
 
 siteMeanDist <- function(x, taxon_name){ 
   site <- unique(x$siteID)
@@ -32,7 +75,8 @@ siteMeanDist <- function(x, taxon_name){
 }
 
 # Calculate mean distance between plots for different NEON sentinel organisms
-plants <- siteMeanDist(data_plant, 'plant')
+
+plants <- siteMeanDist(plant_df, 'plant')
 mammals <- siteMeanDist(data_small_mammal, 'mammal')
 beetles <- siteMeanDist(data_beetle, 'beetle')
 birds <- siteMeanDist(data_bird, 'bird')
@@ -40,6 +84,6 @@ birds <- siteMeanDist(data_bird, 'bird')
 # Create one dataframe of outputs to write to L1 neon_spatial directory
 allDist <- rbind(plants, mammals, beetles, birds)
 
-write.csv(allDist, file=file.path(export_path, '/organismalPlotMeanDist.csv'))
+write.csv(allDist, "Data/all_dist.csv")
           
           
