@@ -247,13 +247,13 @@ ass<-ObsAsy3D(lm, diversity = 'TD', q = c(0),
 
 
 mammal_plot_rar<-ass%>%
-                rename(siteID=Assemblage)%>%
-                arrange(siteID)%>%
-                group_by(siteID)%>%
+                rename(plotID=Assemblage)%>%
+                arrange(plotID)%>%
+                group_by(plotID)%>%
                 mutate(fit= qTD>=qTD.LCL[row_number()-1] & qTD<=qTD.UCL[row_number()-1])%>%#compare the observed to the lcl and ucl of the extrapolation
                 mutate(percent= qTD/qTD[row_number()-1])%>%
                 filter(Method=="Observed")%>%
-                select(siteID,qTD,fit,percent)
+                select(plotID,qTD,fit,percent)
 
 #PLOT
 ggObsAsy3D(ass, profile = "q")
