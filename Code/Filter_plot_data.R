@@ -5,18 +5,6 @@ if(!require("neonDivData"))
 library(neonDivData)
 library(tidyverse)
 
-# beetles, birds, small mammals, plants, and ticks
-
-# Ben, here I just put together to code to get species richness
-# at plot level. We do need to think about how to deal with the
-# fact that different plots have different number of samples 
-# (some plots got started earlier than others). One potential 
-# way is to just look at plots with the same number of samples and
-# see whether the results are the same as using all plots.
-
-# If we need to do random selections later, do we need to work with
-# the species list of each plot or just work with the species richness
-# of that plots?
 
 
 
@@ -51,7 +39,7 @@ View(data_bird)
 
 
 # here, we did not consider observation durations, distance to the center, etc.
-sp_rich_bird = data_bird |> 
+sp_rich_bird <-data_bird |> 
             group_by(siteID, plotID, pointID) |> 
             summarise(n_observation = n_distinct(observation_datetime), # how many samples in total?
             start_year = min(lubridate::year(observation_datetime)), # when did it started?
@@ -62,13 +50,13 @@ sp_rich_bird = data_bird |>
             land_class = unique(nlcdClass)[1],
             .groups = "drop") |># WHAT DOES THIS LINE DO?
             filter(!((pointID==21)))|> #REMOVE SINGLE Points from small sites
-            filter(!((n_observation<4)))#remove plots with less than 5 observations
+            #filter(!((n_observation<4)))#remove plots with less than 5 observations
        
 plot(sp_rich_bird$n_observation,sp_rich_bird$n_sp)
 good_plots<-as.data.frame(unique((sp_rich_bird$plotID)))#make a
 colnames(good_plots)<-"plotID"
  
-write.csv(good_plots,"Data/good_bird_plots.csv")
+write.csv(good_plots,"Data/good_bird_plots_21.csv")
 #### plants####
 View(data_plant)
 

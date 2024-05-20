@@ -14,9 +14,11 @@ library(sars)
 
 
 ####Beetles####
-# assuming that you just want the species richness of each plotID
 
-good_beetle<-read.csv("data/good_beelte_plots.csv",row=1)#beetle plots that have been filtered for completeness
+ 
+good_beetle<-read.csv("Data/beetle_plot_rar.csv") %>% # plots that have been filtered for completeness
+             filter(fit=="TRUE") #filter for plots where obs fell with is 95% CIs of asymptotic estimate
+             
 
 #obtain a site by species data frame th
 beetle_df <- data_beetle %>% 
@@ -28,7 +30,6 @@ beetle_df <- data_beetle %>%
              remove_rownames() %>%
              filter(plotID%in%good_beetle$plotID)%>%#take only "good" plots
              column_to_rownames(var = 'plotID')  
-
 
 
 #run species acc for one site        
@@ -82,13 +83,13 @@ sp_rich<-unlist(rich[2])
 
 #make data frame for for loop
 beetle_params <- data.frame(matrix(NA,
-                                   nrow = 45,
+                                   nrow = 47,#change depending on filtering
                                    ncol = 2),
                             row.names =site_list)
 colnames(beetle_params)<-c("c","z")
 
 #run forloop extracting c and z parameters
-for(i in 1:45){
+for(i in 1:47){#change based on filtering
   
   area<-na.omit(cumsum(matrixe[i,-1]))
   sp_rich<-unlist(rich[i])
@@ -101,7 +102,7 @@ for(i in 1:45){
 #data frame with parameters(note that c (intercept) is back transformed)
 beetle_params
 
-write.csv(beetle_params,"./data/beetle_params.csv")
+write.csv(beetle_params,"./data/beetle_SAR_params_rar_plot.csv")
 #fit multiple models#
 #fitC <- sar_multi(data = t_dat, obj = c("power", "loga", "monod"))
 
@@ -113,21 +114,10 @@ write.csv(beetle_params,"./data/beetle_params.csv")
 
 
 ####Plants####
-
-#get pres/abs for each species per site
-
-# plants is a little bit tricky, depends on which spatial scale to work with
-# 1 m^2, 10 m^2, 100 m^2 or 400 m^2
-
-# if at 1 m^2, need to use subplotID
-#d = filter(data_plant, sample_area_m2 == "1")
-
-# if at 10 m^2, need to use subplotID
-#d = filter(data_plant, sample_area_m2 %in% c("1", "10"))
-
-# if at 100 m^2, need to use subplotID
-#d = filter(data_plant, sample_area_m2 %in% c("1", "10", "100"))
-good_plant<-read.csv("data/good_plant_plots.csv",row=1)#beetle plots that have been filtered for completeness
+good_plant<-read.csv("Data/plant_plot_rar.csv")%>% # plots that have been filtered for completeness
+            filter(fit=="TRUE")%>%#filter for plots where obs fell with is 95% CIs of asymptotes
+            rename(plotID=siteID)
+ 
 
 # if at 400 m^2, use all data, i.e. combine all subplotID within each plotID
 d = data_plant
@@ -144,7 +134,10 @@ plant_df <- d %>%
           column_to_rownames(var = 'plotID')  
 
 #run species acc for one site        
-#zz<-vegan::specaccum(plant_df[,-1], method = "exact", subset = plant_df$siteID=="ABBY")   
+zz<-vegan::specaccum(plant_df[,-1], method = "exact", subset = plant_df$siteID=="CPER")   
+#plot(zz, ci.type = 'poly', ci.lty=0, col='blue', lwd=2, ci.col='lightblue', xlab="Plots",ylab="Species Richenss") #
+#title("OSBS PLANTS")
+#grid()
 
 #make a list of site names
 site_list <- unique(plant_df$siteID)
@@ -217,7 +210,7 @@ for(i in 1:47){
 plant_params
 
 
-write.csv(plant_params,"./data/plant_params.csv")
+write.csv(plant_params,"./data/plant_SAR_params.csv")
 #fit multiple models#
 #fitC <- sar_multi(data = t_dat, obj = c("power", "loga", "monod"))
 
@@ -231,9 +224,10 @@ write.csv(plant_params,"./data/plant_params.csv")
 
 
 ####Birds####
-good_bird<-read.csv("data/good_bird_plots.csv",row=1)#beetle plots that have been filtered for completeness
-#don't need to use good birds as of now because of filter out small grid "21" below
-#obtain a site by species data frame th
+good_bird<-read.csv("data/bird_plot_rar.csv",row=1)%>%
+           filter(fit=="TRUE") #don't need to use good birds as of now because of filter out small grid "21" below
+
+
 bird_df <- data_bird %>%
         filter(!(pointID=='21')) %>%#get rid of sites to small to have grids
         select(siteID, plotID, taxon_name) %>% 
@@ -246,7 +240,7 @@ bird_df <- data_bird %>%
 
 
 #run species acc for one site        
-zz<-vegan::specaccum(bird_df[,-1], method = "exact", subset = bird_df$siteID=="OSBS")   
+zz<-vegan::specaccum(bird_df[,-1], method = "exact", subset = bird_df$siteID=="DSNY")   
 
 
 #plot for one site
@@ -265,9 +259,6 @@ for(i in site_list) {
   acc<-vegan::specaccum(bird_df[,-1], method = "exact", subset = bird_df$siteID==i)
   rich[[i]]<-acc$richness#extract the richness for each site number
 }
-
-
-
 
 
 
@@ -303,7 +294,7 @@ matrixe
 
 
 #extract area and sprich from one site and run 
-area<-na.omit(cumsum(matrixe[29,-1]))
+area<-na.omit(cumsum(matrixe[7,-1]))
 sp_rich<-unlist(rich[29])
 
 #plot sar for one site
@@ -338,7 +329,7 @@ for(i in 1:32){
 #data frame with parameters(note that c (intercept) is back transformed)
 bird_params
 
-write.csv(bird_params,"./data/bird_params.csv")
+write.csv(bird_params,"./data/bird_params_rar_plot.csv")
 
 #fit multiple models#
 #fitC <- sar_multi(data = t_dat, obj = c("power", "loga", "monod"))
@@ -353,8 +344,8 @@ write.csv(bird_params,"./data/bird_params.csv")
 
 
 ####Mammals####
-good_mammal<-read.csv("data/good_mammal_plots.csv",row=1)#beetle plots that have been filtered for completeness
-
+good_mammal<-read.csv("data/mammal_plot_rar.csv",row=1)%>%#beetle plots that have been filtered for completeness
+             filter(fit=="TRUE")
 
 mammal_df <- data_small_mammal %>% 
           select(plotID, taxon_name) %>% 
@@ -364,12 +355,12 @@ mammal_df <- data_small_mammal %>%
           pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0) 
 
 # if you want to convert it to a matrix / data frame with row names
-mammal_df = as.data.frame(mammal_df)
-row.names(mammal_df) = mammal_df$plotID
-mammal_df$plotID = NULL
+#mammal_df = as.data.frame(mammal_df)
+#row.names(mammal_df) = mammal_df$plotID
+#mammal_df$plotID = NULL
 
 # if you just want presence/absence
-mammal_df[mammal_df > 0] = 1
+#mammal_df[mammal_df > 0] = 1
 
 
 
@@ -378,14 +369,14 @@ mammal_df[mammal_df > 0] = 1
 
 
 mammal_df <- data_small_mammal%>% 
-  select(siteID, plotID, taxon_name) %>% 
-  mutate(present = 1) %>% 
-  group_by(plotID, taxon_name, siteID) %>% 
-  summarise(present = sum(present)/sum(present)) %>% 
-  pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0)%>%  
-  remove_rownames() %>%
-  filter(plotID%in%good_mammal$plotID)%>%#take only "good" plots
-  column_to_rownames(var = 'plotID')  
+              select(siteID, plotID, taxon_name) %>% 
+              mutate(present = 1) %>% 
+              group_by(plotID, taxon_name, siteID) %>% 
+              summarise(present = sum(present)/sum(present)) %>% 
+              pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0)%>%  
+              remove_rownames() %>%
+              filter(plotID%in%good_mammal$plotID)%>%#take only "good" plots
+              column_to_rownames(var = 'plotID')  
 
 
 #run species acc for one site        
@@ -405,7 +396,7 @@ for(i in site_list) {
 
 #this is the number of plots at each location
 plot_num<-mammal_df%>%
-  count(siteID)
+          count(siteID)
 
 #plot numbers
 min(plot_num$n)
@@ -445,13 +436,13 @@ sp_rich<-unlist(rich[2])
 
 #make data frame for for loop
 mammal_params <- data.frame(matrix(NA,
-                                 nrow = 43,
+                                 nrow = 46,#change based on filtering
                                  ncol = 2),
                           row.names =site_list)
 colnames(mammal_params)<-c("c","z")
 
 #run forloop extracting c and z parameters
-for(i in 1:43){
+for(i in 1:46){#change based on filtering
   
   area<-na.omit(cumsum(matrixe[i,-1]))
   sp_rich<-unlist(rich[i])
@@ -464,7 +455,7 @@ for(i in 1:43){
 #data frame with parameters(note that c (intercept) is back transformed)
 mammal_params
 
-write.csv(mammal_params,"./data/mammal_params.csv")
+write.csv(mammal_params,"./data/mammal_SAR_params_rar_plot.csv")
 
 #fit multiple models#
 #fitC <- sar_multi(data = t_dat, obj = c("power", "loga", "monod"))
