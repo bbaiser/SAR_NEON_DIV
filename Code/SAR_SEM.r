@@ -19,20 +19,20 @@ site_data<-read.csv("Data/NEON_Field_Site_Metadata_20220412.csv")%>%
            max_elev=field_maximum_elevation_m,mean_temp=field_mean_annual_temperature_C, mean_precip=field_mean_annual_precipitation_mm)
 
 #get beetle SAR parameters
-beetle_params<-read.csv("Data/beetle_params.csv")
+beetle_params<-read.csv("Data/beetle_SAR_params_rar_plot.csv")
 
 #get beetle sampling covariates
 beetle_vars<-read.csv("Data/beetle_vars.csv",row=1)
 
 #get inter plot distances
-beetle_dist<-read.csv("Data/organismalPlotMeanDist.csv",row=1)%>%
+beetle_dist<-read.csv("Data/all_dist.csv",row=1)%>%
              filter(taxon=="beetle")%>%
              rename(siteID = site)%>%
              select(siteID,aveDist)
                    
 #get rarefaction information
 
-beetle_rar<-read.csv("Data/beetle_rar.csv",row=1)
+#beetle_rar<-read.csv("Data/beetle_rar.csv",row=1)
 
 #combine into one dataframe
 comb_beetle<-beetle_params%>%
@@ -40,9 +40,8 @@ comb_beetle<-beetle_params%>%
              left_join(site_data,by="siteID")%>%
              left_join(beetle_vars,by="siteID")%>%
              left_join(beetle_dist,by="siteID")%>%
-             left_join(beetle_rar,by="siteID")%>%
-             subset(.,siteID!="GUAN"& siteID!="PUUM"& siteID!="LAJA" &siteID!="STER")%>%#remove puerto rico and Hawaiian sites and STER as a massive outlier for c
-             #filter(percent>=.80)#to filter out sites with less than 40 obs
+             subset(.,siteID!="GUAN"& siteID!="PUUM"& siteID!="LAJA"&siteID!="STER" )%>%#remove Puerto Rico and Hawaiian sites and STER as a massive outlier for c
+             #filter(percent>=.80)#to filter out sites with less than 40 obs# &siteID!="STER"
 
 #species richness model
 colnames(comb_beetle)
@@ -103,20 +102,20 @@ site_data<-read.csv("Data/NEON_Field_Site_Metadata_20220412.csv")%>%
            max_elev=field_maximum_elevation_m,mean_temp=field_mean_annual_temperature_C, mean_precip=field_mean_annual_precipitation_mm)
 
 #get mammal SAR parameters
-mammal_params<-read.csv("Data/mammal_params.csv")
+mammal_params<-read.csv("Data/mammal_SAR_params_rar_plot.csv")
 
 # get mammal sampling covariates
 mammal_vars<-read.csv("Data/mammal_vars.csv",row=1)
 
 #get inter plot distances
-mammal_dist<-read.csv("Data/organismalPlotMeanDist.csv",row=1)%>%
+mammal_dist<-read.csv("Data/all_dist.csv",row=1)%>%
              filter(taxon=="mammal")%>%
              rename(siteID = site)%>%
              select(siteID,aveDist)
 
 #get rarefaction information
 
-mammal_rar<-read.csv("Data/mammal_rar.csv",row=1)
+#mammal_rar<-read.csv("Data/mammal_rar.csv",row=1)
 
 #combine into one dataframe
 comb_mammal<-mammal_params%>%
@@ -124,9 +123,8 @@ comb_mammal<-mammal_params%>%
               left_join(site_data,by="siteID")%>%
               left_join(mammal_vars,by="siteID")%>%
               left_join(mammal_dist,by="siteID")%>%
-              left_join(mammal_rar,by="siteID")%>%
-              subset(.,siteID!="GUAN"& siteID!="PUUM"& siteID!="LAJA")%>%#remove puerto rico and Hawaiian sites 
-              filter(percent>=.75)
+              subset(.,siteID!="GUAN"& siteID!="PUUM"& siteID!="LAJA")#remove puerto rico and Hawaiian sites 
+             
 
 #species richness model
 dim(comb_mammal)
@@ -188,25 +186,25 @@ site_data<-read.csv("Data/NEON_Field_Site_Metadata_20220412.csv")%>%
            max_elev=field_maximum_elevation_m,mean_temp=field_mean_annual_temperature_C, mean_precip=field_mean_annual_precipitation_mm)
 
 #get bird SAR parameters
-bird_params<-read.csv("Data/bird_params.csv")
+bird_params<-read.csv("Data/bird_params_rar_plot.csv")
 
 # get bird sampling covariates
 bird_vars<-read.csv("Data/bird_vars.csv",row=1)
 
 #get inter plot distances
-bird_dist<-read.csv("Data/organismalPlotMeanDist.csv",row=1)%>%
+bird_dist<-read.csv("Data/all_dist.csv",row=1)%>%
             filter(taxon=="bird")%>%
             rename(siteID = site)%>%
             select(siteID,aveDist)
 
 #combine into one dataframe
 comb_bird<-bird_params%>%
-           rename(siteID=X)%>%
+            rename(siteID=X)%>%
             left_join(site_data,by="siteID")%>%
             left_join(bird_vars,by="siteID")%>%
             left_join(bird_dist,by="siteID")%>%
-            subset(.,siteID!="GUAN"&siteID!="PUUM"&siteID!="LAJA")%>%#remove puerto rico and Hawaii sites
-            filter(n_observation>=20)#to filter out sites with less than 40 obs
+            subset(.,siteID!="GUAN"&siteID!="PUUM"&siteID!="LAJA")#remove puerto rico and Hawaii sites
+           
 
 #species richness model
 colnames(comb_bird)
@@ -267,7 +265,7 @@ site_data<-read.csv("Data/NEON_Field_Site_Metadata_20220412.csv")%>%
            max_elev=field_maximum_elevation_m,mean_temp=field_mean_annual_temperature_C, mean_precip=field_mean_annual_precipitation_mm)
 
 #get plant SAR parameters
-plant_params<-read.csv("Data/plant_params.csv")
+plant_params<-read.csv("Data/plant_SAR_params_rar_plot.csv")
 
 # get plant sampling covariates
 plant_vars<-read.csv("Data/plant_vars.csv",row=1)
