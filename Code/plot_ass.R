@@ -11,7 +11,7 @@ library(iNEXT.3D)
 
 ####Beetles####
 
-good_beetle<-read.csv("Data/good_beelte_plots5.csv")
+good_beetle<-read.csv("Data/good_beetle_plots_4.csv")
 
 #make a species by sampling bout incidence (1/0) matrix
 beetle_df <- data_beetle %>% 
@@ -25,37 +25,20 @@ beetle_df <- data_beetle %>%
             ungroup()%>%
             select(!sample)
 
-
-
-
                        
-#counts of samples for each plot  
-plot_count<-data_beetle %>%
-            filter(plotID%in%good_beetle$plotID)%>%#take only "good" plots
-            unite('sample',plotID, boutID, remove=F )%>%
-            select(sample, plotID, taxon_name) %>% 
-            mutate(present = 1) %>% 
-            group_by(sample,plotID, taxon_name) %>% 
-            summarise(present = sum(present)/sum(present)) %>% 
-            pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0)%>% 
-            ungroup()%>%
-            group_by(plotID)%>%
-            count(plotID)%>%
-            column_to_rownames(var = 'plotID')
-           
+
 #format as list of lists to run in iNEXT3D
 lm<-split(beetle_df,beetle_df$plotID)%>%
     lapply(., function(x)x[,-1 ])%>%
     lapply(.,t)  
 
-
-
+#run iNEXT3D
 ass<-ObsAsy3D(lm, diversity = 'TD', q = c(0),
               datatype = "incidence_raw")
 
 
 
-
+#see if observed species richness estimate falls within 95% CIs of asymptotic estimator (True/False)
 beetle_plot_rar<-ass%>%
             rename(plotID=Assemblage)%>%
             arrange(plotID)%>%
@@ -75,7 +58,7 @@ write.csv(beetle_plot_rar, "Data/beetle_plot_rar.csv")
 
 ####Birds####
 
-good_bird<-read.csv("Data/good_bird_plots.csv")
+good_bird<-read.csv("Data/good_bird_plots_4.csv")
 
 #make a species by sampling bout incidence (1/0) matrix
 bird_df <-  data_bird %>% 
@@ -93,33 +76,21 @@ bird_df <-  data_bird %>%
 
 
 
-#counts of samples for each plot  
-plot_count<-data_bird%>%
-            filter(plotID%in%good_bird$plotID)%>%#take only "good" plots
-            unite('sample',plotID,unique_sample_id, remove=F )%>%
-            select(sample, plotID, taxon_name) %>% 
-            mutate(present = 1) %>% 
-            group_by(sample,plotID, taxon_name) %>% 
-            summarise(present = sum(present)/sum(present)) %>% 
-            pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0)%>% 
-            ungroup()%>%
-            group_by(plotID)%>%
-            count(plotID)%>%
-            column_to_rownames(var = 'plotID')
+
 
 #format as list of lists to run in iNEXT3D
 lm<-split(bird_df,bird_df$plotID)%>%
-  lapply(., function(x)x[,-1 ])%>%
-  lapply(.,t)  
+    lapply(., function(x)x[,-1 ])%>%
+    lapply(.,t)  
 
 
-
+#run iNEXT3D
 ass<-ObsAsy3D(lm, diversity = 'TD', q = c(0),
               datatype = "incidence_raw")
 
 
 
-
+##see if observed species richness estimate falls within 95% CIs of asymptotic estimator (True/False)
 bird_plot_rar<-ass%>%
             rename(siteID=Assemblage)%>%
             arrange(siteID)%>%
@@ -137,7 +108,7 @@ ggObsAsy3D(ass, profile = "q")
 write.csv(bird_plot_rar, "Data/bird_plot_rar.csv")
 ####Plants####
 
-good_plant<-read.csv("Data/good_plant_plots.csv")
+good_plant<-read.csv("Data/good_plant_plots_4.csv")
 
 #make a species by sampling bout incidence (1/0) matrix
 plant_df <-  data_plant %>% 
@@ -151,37 +122,18 @@ plant_df <-  data_plant %>%
             ungroup()%>%
             select(!sample)
 
-
-
-
-
-#counts of samples for each plot  
-plot_count<-data_plant%>%
-            filter(plotID%in%good_plant$plotID)%>%#take only "good" plots
-            unite('sample',plotID,unique_sample_id, remove=F )%>%
-            select(sample, plotID, taxon_name) %>% 
-            mutate(present = 1) %>% 
-            group_by(sample,plotID, taxon_name) %>% 
-            summarise(present = sum(present)/sum(present)) %>% 
-            pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0)%>% 
-            ungroup()%>%
-            group_by(plotID)%>%
-            count(plotID)%>%
-            column_to_rownames(var = 'plotID')
-
 #format as list of lists to run in iNEXT3D
 lm<-split(plant_df,plant_df$plotID)%>%
-  lapply(., function(x)x[,-1 ])%>%
-  lapply(.,t)  
+    lapply(., function(x)x[,-1 ])%>%
+    lapply(.,t)  
 
 
-
+#run iNEXT3D
 ass<-ObsAsy3D(lm, diversity = 'TD', q = c(0),
               datatype = "incidence_raw")
 
 
-
-
+##see if observed species richness estimate falls within 95% CIs of asymptotic estimator (True/False)
 plant_plot_rar<-ass%>%
               rename(siteID=Assemblage)%>%
               arrange(siteID)%>%
@@ -201,7 +153,7 @@ write.csv(plant_plot_rar, "Data/plant_plot_rar.csv")
 
 ####mammals####
 
-good_mammal<-read.csv("Data/good_mammal_plots.csv")
+good_mammal<-read.csv("Data/good_mammal_plots_4.csv")
 
 #make a species by sampling bout incidence (1/0) matrix
 mammal_df <-  data_small_mammal %>% 
@@ -216,35 +168,19 @@ mammal_df <-  data_small_mammal %>%
               select(!sample)
 
 
-
-
-
-#counts of samples for each plot  
-plot_count<-data_small_mammal%>%
-            filter(plotID%in%good_mammal$plotID)%>%#take only "good" plots
-            unite('sample',plotID,unique_sample_id, remove=F )%>%
-            select(sample, plotID, taxon_name) %>% 
-            mutate(present = 1) %>% 
-            group_by(sample,plotID, taxon_name) %>% 
-            summarise(present = sum(present)/sum(present)) %>% 
-            pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0)%>% 
-            ungroup()%>%
-            group_by(plotID)%>%
-            count(plotID)%>%
-            column_to_rownames(var = 'plotID')
-
 #format as list of lists to run in iNEXT3D
 lm<-split(mammal_df,mammal_df$plotID)%>%
-  lapply(., function(x)x[,-1 ])%>%
-  lapply(.,t)  
+    lapply(., function(x)x[,-1 ])%>%
+    lapply(.,t)  
 
-
+#run iNEXT3D
 
 ass<-ObsAsy3D(lm, diversity = 'TD', q = c(0),
               datatype = "incidence_raw")
 
 
 
+##see if observed species richness estimate falls within 95% CIs of asymptotic estimator (True/False)
 
 mammal_plot_rar<-ass%>%
                 rename(plotID=Assemblage)%>%
