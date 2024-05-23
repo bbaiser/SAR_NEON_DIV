@@ -15,7 +15,7 @@ library(neonDivData)
 ####data####
 #beetles
 good_beetle<-read.csv("Data/beetle_plot_rar.csv")%>% # plots that have been filtered for completeness
-             filter(fit=="TRUE")%>%#filter for plots where obs fell with is 95% CIs of asymptotes
+             filter(fit=="TRUE")#filter for plots where obs fell with is 95% CIs of asymptotes
  
 
 beetle_df <- data_beetle %>% 
@@ -24,8 +24,7 @@ beetle_df <- data_beetle %>%
               distinct(.)
 #bird
 good_bird<-read.csv("Data/bird_plot_rar.csv")%>% # plots that have been filtered for completeness
-           filter(fit=="TRUE")%>%
-           rename(plotID=siteID)#filter for plots where obs fell with is 95% CIs of asymptotes
+           filter(fit=="TRUE")#filter for plots where obs fell with is 95% CIs of asymptotes
            
   
 bird_df <- data_bird %>% 
@@ -36,8 +35,8 @@ bird_df <- data_bird %>%
 
 #plants
 good_plant<-read.csv("Data/plant_plot_rar.csv")%>% # plots that have been filtered for completeness
-            filter(fit=="TRUE")%>%#filter for plots where obs fell with is 95% CIs of asymptotes
-            rename(plotID=siteID)
+            filter(fit=="TRUE")#filter for plots where obs fell with is 95% CIs of asymptotes
+           
 
 plant_df <- data_plant %>% 
             select(siteID, plotID, latitude, longitude) %>% 
