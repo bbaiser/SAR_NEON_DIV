@@ -92,13 +92,13 @@ ass<-ObsAsy3D(lm, diversity = 'TD', q = c(0),
 
 ##see if observed species richness estimate falls within 95% CIs of asymptotic estimator (True/False)
 bird_plot_rar<-ass%>%
-            rename(siteID=Assemblage)%>%
-            arrange(siteID)%>%
-            group_by(siteID)%>%
+            rename(plotID=Assemblage)%>%
+            arrange(plotID)%>%
+            group_by(plotID)%>%
             mutate(fit= qTD>=qTD.LCL[row_number()-1] & qTD<=qTD.UCL[row_number()-1])%>%#compare the observed to the lcl and ucl of the extrapolation
             mutate(percent= qTD/qTD[row_number()-1])%>%
             filter(Method=="Observed")%>%
-            select(siteID,qTD,fit,percent)
+            select(plotID,qTD,fit,percent)
 
 #PLOT
 ggObsAsy3D(ass, profile = "q")
@@ -122,6 +122,15 @@ plant_df <-  data_plant %>%
             ungroup()%>%
             select(!sample)
 
+
+
+
+
+
+zz<-plant_df %>% 
+  group_by(plotID) %>%
+  summarise(no_rows = length(plotID))
+
 #format as list of lists to run in iNEXT3D
 lm<-split(plant_df,plant_df$plotID)%>%
     lapply(., function(x)x[,-1 ])%>%
@@ -135,13 +144,15 @@ ass<-ObsAsy3D(lm, diversity = 'TD', q = c(0),
 
 ##see if observed species richness estimate falls within 95% CIs of asymptotic estimator (True/False)
 plant_plot_rar<-ass%>%
-              rename(siteID=Assemblage)%>%
-              arrange(siteID)%>%
-              group_by(siteID)%>%
+              rename(plotID=Assemblage)%>%
+              arrange(plotID)%>%
+              group_by(plotID)%>%
               mutate(fit= qTD>=qTD.LCL[row_number()-1] & qTD<=qTD.UCL[row_number()-1])%>%#compare the observed to the lcl and ucl of the extrapolation
               mutate(percent= qTD/qTD[row_number()-1])%>%
               filter(Method=="Observed")%>%
-              select(siteID,qTD,fit,percent)
+              select(plotID,qTD,fit,percent)
+
+
 
 #PLOT
 ggObsAsy3D(ass, profile = "q")
