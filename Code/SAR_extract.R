@@ -210,7 +210,7 @@ for(i in 1:47){
 plant_params
 
 
-write.csv(plant_params,"./data/plant_SAR_params.csv")
+write.csv(plant_params,"./Data/plant_SAR_params.csv")
 #fit multiple models#
 #fitC <- sar_multi(data = t_dat, obj = c("power", "loga", "monod"))
 
