@@ -40,7 +40,7 @@ comb_beetle<-beetle_params%>%
              left_join(site_data,by="siteID")%>%
              left_join(beetle_vars,by="siteID")%>%
              left_join(beetle_dist,by="siteID")%>%
-             subset(.,siteID!="GUAN"& siteID!="PUUM"& siteID!="LAJA"&siteID!="STER" )%>%#remove Puerto Rico and Hawaiian sites and STER as a massive outlier for c
+             subset(.,siteID!="GUAN"& siteID!="PUUM"& siteID!="LAJA"&siteID!="STER")#remove Puerto Rico and Hawaiian sites and STER as a massive outlier for c
              #filter(percent>=.80)#to filter out sites with less than 40 obs# &siteID!="STER"
 
 #species richness model
@@ -227,11 +227,10 @@ summary(bird_c)
 plot(bird_c)
 
 #z model (based on AIC, use c over n_sp due to high correlation between c and nsp)
-bird_z<-lm(z~aveDist+c+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_bird)
-
+bird_z<-lm(z~aveDist+c+n_sp+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_bird)
 vif(bird_z)
 summary(bird_z)
-plot(comb_bird$n_sp,comb_bird$z) #point 35 is has high leverage
+plot(bird_z) #point 35 is has high leverage
 
 
 #nlcd div  model
@@ -265,12 +264,12 @@ site_data<-read.csv("Data/NEON_Field_Site_Metadata_20220412.csv")%>%
            max_elev=field_maximum_elevation_m,mean_temp=field_mean_annual_temperature_C, mean_precip=field_mean_annual_precipitation_mm)
 
 #get plant SAR parameters
-plant_params<-read.csv("Data/plant_SAR_params_rar_plot.csv")
+plant_params<-read.csv("Data/plant_SAR_params.csv")
 
 # get plant sampling covariates
 plant_vars<-read.csv("Data/plant_vars.csv",row=1)
 
-plant_dist<-read.csv("Data/organismalPlotMeanDist.csv",row=1)%>%
+plant_dist<-read.csv("Data/all_dist.csv",row=1)%>%
             filter(taxon=="plant")%>%
             rename(siteID = site)%>%
             select(siteID,aveDist)
@@ -281,8 +280,8 @@ comb_plant<-plant_params%>%
             left_join(site_data,by="siteID")%>%
             left_join(plant_vars,by="siteID")%>%
             left_join(plant_dist,by="siteID")%>%
-            subset(.,siteID!="GUAN"&siteID!="PUUM"&siteID!="LAJA")%>%#remove puerto rico and Hawaii sites
-            filter(n_observation>=20)#to filter out sites with less than 40 obs
+            subset(.,siteID!="GUAN"&siteID!="PUUM"&siteID!="LAJA")#remove puerto rico and Hawaii sites
+            #filter(n_observation>=20)#to filter out sites with less than 40 obs
 
 #species richness model
 colnames(comb_plant)
@@ -305,7 +304,7 @@ summary(plant_c)
 plot(plant_c)
 
 #z model(deal with n_sp,nobs_c colinerity )
-plant_z<-lm(z~aveDist+c+n_sp++n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_plant)
+plant_z<-lm(z~aveDist+c+n_sp+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_plant)
 
 vif(plant_z)
 
@@ -323,14 +322,14 @@ plot(plant_nlcd) #point 35 is has high leverage
 
 #elev_cv  model
 plant_elev<-lm(elv_cv~long+mean_temp+mean_precip+mean_elev, data=comb_plant)
-
+is.na(comb_plant)
 vif(plant_elev)
 summary(plant_elev)
 plot(plant_elev) #point 35 is has high leverage
 
 
 #piecwise sem model
-plant_sem_mod<-psem(plant_c,plant_z,plant_elev,plant_nlcd,plant_rich)
+plant_sem_mod<-psem(plant_c,plant_z,plant_elev,plant_nlcd,plant_rich,nlcd_div %~~% n_observation)
 nlcd_div %~~% n_observation
 
 
@@ -371,12 +370,12 @@ all_tax<-bind_rows(bird_join,beetle_join,mammal_join,plant_join)
 #species richness model
 hist(all_tax$n_sp, breaks = 20)
 #model without lat because lat and temp are colinear (could run atemp model) 
-all_rich<-lm(log(n_sp)~aveDist+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+taxa, data=all_tax)
+all_rich<-lm(n_sp~aveDist+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+taxa, data=all_tax)
 
 vif(all_rich)
 summary(all_rich)
 plot(all_rich)
-
+AIC(all_rich)
 
 #c model
 
@@ -415,5 +414,6 @@ all_sem_mod<-psem(all_c,all_z,all_elev,all_nlcd,all_rich)
 summary(all_sem_mod)
 plot(all_sem_mod)
 
-
+ZZ<-coefs(all_sem_mod)
+capture.output(ZZ, file = "Data/test.txt")
 
