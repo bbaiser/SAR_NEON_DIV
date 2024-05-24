@@ -1,3 +1,6 @@
+#filter down NEON data for plots with at least 4 sampling events
+
+
 if(!require("neonDivData"))
   install.packages('neonDivData', repos = c(
     daijiang = 'https://daijiang.r-universe.dev',
@@ -12,7 +15,7 @@ library(tidyverse)
 good_beetle_plots<-data_beetle %>%
                 group_by(plotID) %>%
                 summarise(n_observation = n_distinct(observation_datetime))%>%
-                filter(!((n_observation<4)))%>%#remove plots with less than 5 observations/sampling bouts
+                filter(!((n_observation<4)))%>%#remove plots with less than 4 observations/sampling bouts
                 select(plotID)
 
 write.csv(good_beetle_plots,"Data/good_beetle_plots_4.csv")
@@ -22,36 +25,17 @@ good_bird_plots<-data_bird %>%
                   filter(!((pointID==21)))%>%
                   group_by(plotID) %>%
                   summarise(n_observation = n_distinct(observation_datetime))%>%
-                  filter(!((n_observation<4)))%>%#remove plots with less than 5 observations/sampling bouts
+                  filter(!((n_observation<4)))%>%#remove plots with less than 4 observations/sampling bouts
                   select(plotID)
 
 write.csv(good_bird_plots,"Data/good_bird_plots_4.csv")
 
 
-# here, we did not consider observation durations, distance to the center, etc.
-sp_rich_bird <-data_bird |> 
-            group_by(siteID, plotID, pointID) |> 
-            summarise(n_observation = n_distinct(observation_datetime), # how many samples in total?
-            start_year = min(lubridate::year(observation_datetime)), # when did it started?
-            n_sp = n_distinct(taxon_id), # number of unique species
-            latitude = mean(latitude, na.rm = T),
-            longitude = mean(longitude, na.rm = T),
-            elevation = mean(elevation, na.rm = T),
-            land_class = unique(nlcdClass)[1],
-            .groups = "drop") |># WHAT DOES THIS LINE DO?
-            filter(!((pointID==21)))|> #REMOVE SINGLE Points from small sites
-            #filter(!((n_observation<4)))#remove plots with less than 5 observations
-       
-plot(sp_rich_bird$n_observation,sp_rich_bird$n_sp)
-good_plots<-as.data.frame(unique((sp_rich_bird$plotID)))#make a
-colnames(good_plots)<-"plotID"
- 
-write.csv(good_plots,"Data/good_bird_plots_21.csv")
 #### plants####
 good_plant_plots<-data_plant %>%
                   group_by(plotID) %>%
                   summarise(n_observation = n_distinct(observation_datetime))%>%
-                  filter(!((n_observation<4)))%>%#remove plots with less than 5 observations/sampling bouts
+                  filter(!((n_observation<4)))%>%#remove plots with less than 4 observations/sampling bouts
                   select(plotID)
 
 write.csv(good_plant_plots,"Data/good_plant_plots_4.csv")
