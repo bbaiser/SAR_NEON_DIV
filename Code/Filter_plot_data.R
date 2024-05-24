@@ -15,18 +15,20 @@ library(tidyverse)
 good_beetle_plots<-data_beetle %>%
                 group_by(plotID) %>%
                 summarise(n_observation = n_distinct(observation_datetime))%>%
-                filter(!((n_observation<4)))%>%#remove plots with less than 4 observations/sampling bouts
+                filter(!((n_observation<12)))%>%#remove plots with less than 4 observations/sampling bouts
                 select(plotID)
 
-write.csv(good_beetle_plots,"Data/good_beetle_plots_4.csv")
+write.csv(good_beetle_plots,"Data/good_beetle_plots_12.csv")
 
 #### birds####
 good_bird_plots<-data_bird %>%
+                  mutate(date= as.Date(observation_datetime))%>%#seperate out date and time
                   filter(!((pointID==21)))%>%
                   group_by(plotID) %>%
-                  summarise(n_observation = n_distinct(observation_datetime))%>%
+                  summarise(n_observation = n_distinct(date))%>%
                   filter(!((n_observation<4)))%>%#remove plots with less than 4 observations/sampling bouts
                   select(plotID)
+
 
 write.csv(good_bird_plots,"Data/good_bird_plots_4.csv")
 
@@ -45,10 +47,10 @@ write.csv(good_plant_plots,"Data/good_plant_plots_4.csv")
 good_mammal_plots<-data_small_mammal %>%
                   group_by(plotID) %>%
                   summarise(n_observation = n_distinct(observation_datetime))%>%
-                  filter(!((n_observation<4)))%>%#remove plots with less than 5 observations/sampling bouts
+                  filter(!((n_observation<12)))%>%#remove plots with less than 5 observations/sampling bouts
                   select(plotID)
 
-write.csv(good_mammal_plots,"Data/good_mammal_plots_4.csv")
+write.csv(good_mammal_plots,"Data/good_mammal_plots_12.csv")
 
 
 
