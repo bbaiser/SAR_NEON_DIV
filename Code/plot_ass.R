@@ -17,16 +17,14 @@ good_beetle<-read.csv("Data/good_beetle_plots_12.csv")
 #make a species by sampling bout incidence (1/0) matrix
 beetle_df <- data_beetle %>% 
             filter(plotID%in%good_beetle$plotID)%>%#take only "good" plots
-            unite('sample',plotID, boutID, remove=F )%>%
-            select(sample, plotID, taxon_name) %>% 
+            mutate(plot_date = paste(plotID, observation_datetime))%>%
+            select(plot_date, plotID, taxon_name) %>% 
             mutate(present = 1) %>% 
-            group_by(sample,plotID, taxon_name) %>% 
+            group_by(plot_date,plotID, taxon_name) %>% 
             summarise(present = sum(present)/sum(present)) %>% 
             pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0)%>%  
             ungroup()%>%
-            select(!sample)
-
-                       
+            select(!plot_date)   
 
 #format as list of lists to run in iNEXT3D
 lm<-split(beetle_df,beetle_df$plotID)%>%
@@ -115,14 +113,15 @@ good_plant<-read.csv("Data/good_plant_plots_4.csv")
 #make a species by sampling bout incidence (1/0) matrix
 plant_df <-  data_plant %>% 
             filter(plotID%in%good_plant$plotID)%>%#take only "good" plots
-            unite('sample',plotID, unique_sample_id, remove=F )%>%
-            select(sample, plotID, taxon_name) %>% 
+            mutate(date= as.Date(observation_datetime))%>%
+            mutate(plot_date = paste(plotID, date))%>%
+            select(plot_date, plotID, taxon_name) %>% 
             mutate(present = 1) %>% 
-            group_by(sample,plotID, taxon_name) %>% 
+            group_by(plot_date,plotID, taxon_name) %>% 
             summarise(present = sum(present)/sum(present)) %>% 
             pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0)%>%  
             ungroup()%>%
-            select(!sample)
+            select(!plot_date)
 
 
 
@@ -165,14 +164,15 @@ good_mammal<-read.csv("Data/good_mammal_plots_12.csv")
 #make a species by sampling bout incidence (1/0) matrix
 mammal_df <-  data_small_mammal %>% 
               filter(plotID%in%good_mammal$plotID)%>%#take only "good" plots
-              unite('sample',plotID, unique_sample_id, remove=F )%>%
-              select(sample, plotID, taxon_name) %>% 
+              mutate(plot_date = paste(plotID, observation_datetime))%>%
+              select(plot_date, plotID, taxon_name) %>% 
               mutate(present = 1) %>% 
-              group_by(sample,plotID, taxon_name) %>% 
+              group_by(plot_date,plotID, taxon_name) %>% 
               summarise(present = sum(present)/sum(present)) %>% 
               pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0)%>%  
               ungroup()%>%
-              select(!sample)
+              select(!plot_date)
+
 
 
 #format as list of lists to run in iNEXT3D
