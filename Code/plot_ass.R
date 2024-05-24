@@ -1,12 +1,13 @@
-#load packages
+#Run Rarefaction/Extrapolation with iNEXT3D
 
+
+####packages####
 if(!require("neonDivData"))
   install.packages('neonDivData', repos = c(
     daijiang = 'https://daijiang.r-universe.dev',
     CRAN = 'https://cloud.r-project.org'))
 library(neonDivData)
 library(tidyverse)
-install.packages("iNEXT.3D")
 library(iNEXT.3D)
 
 ####Beetles####
@@ -49,7 +50,7 @@ beetle_plot_rar<-ass%>%
             select(plotID,qTD,fit,percent)
 
 #PLOT
-ggObsAsy3D(ass, profile = "q")
+ggObsAsy3D(ass, profile = "q", group)
 
 
 
@@ -124,12 +125,6 @@ plant_df <-  data_plant %>%
 
 
 
-
-
-
-zz<-plant_df %>% 
-  group_by(plotID) %>%
-  summarise(no_rows = length(plotID))
 
 #format as list of lists to run in iNEXT3D
 lm<-split(plant_df,plant_df$plotID)%>%
