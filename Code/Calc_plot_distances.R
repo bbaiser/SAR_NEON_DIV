@@ -24,7 +24,7 @@ beetle_df <- data_beetle %>%
               distinct(.)
 #bird
 good_bird<-read.csv("Data/bird_plot_rar.csv")%>% # plots that have been filtered for completeness
-           filter(fit=="TRUE")#filter for plots where obs fell with is 95% CIs of asymptotes
+           filter(fit=="TRUE")#filter for plots where obs fell with is 95% CIs of asymptotic
            
   
 bird_df <- data_bird %>% 
