@@ -1,4 +1,4 @@
-
+#extract SAR parameters (c and z) from pwerlaw model
 #load packages
 
 if(!require("neonDivData"))
@@ -8,8 +8,6 @@ if(!require("neonDivData"))
 library(neonDivData)
 library(tidyverse)
 library(dplyr)
-
-install.packages("sars")
 library(sars)
 
 
@@ -83,13 +81,13 @@ sp_rich<-unlist(rich[2])
 
 #make data frame for for loop
 beetle_params <- data.frame(matrix(NA,
-                                   nrow = 47,#change depending on filtering
+                                   nrow = 46,#change depending on filtering
                                    ncol = 2),
                             row.names =site_list)
 colnames(beetle_params)<-c("c","z")
 
 #run forloop extracting c and z parameters
-for(i in 1:47){#change based on filtering
+for(i in 1:46){#change based on filtering
   
   area<-na.omit(cumsum(matrixe[i,-1]))
   sp_rich<-unlist(rich[i])
@@ -115,15 +113,12 @@ write.csv(beetle_params,"./data/beetle_SAR_params_rar_plot.csv")
 
 ####Plants####
 good_plant<-read.csv("Data/plant_plot_rar.csv")%>% # plots that have been filtered for completeness
-            filter(fit=="TRUE")%>%#filter for plots where obs fell with is 95% CIs of asymptotes
-            rename(plotID=siteID)
+            filter(fit=="TRUE")#filter for plots where obs fell with is 95% CIs of asymptotes
+            
  
 
-# if at 400 m^2, use all data, i.e. combine all subplotID within each plotID
-d = data_plant
-
 # the code below works at 400 m^2
-plant_df <- d %>% 
+plant_df <- data_plant %>% 
           select(siteID, plotID, taxon_name) %>% 
           mutate(present = 1) %>% 
           group_by(plotID, taxon_name, siteID) %>% 
@@ -236,15 +231,16 @@ bird_df <- data_bird %>%
         summarise(present = sum(present)/sum(present)) %>% 
         pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0)%>%  
         remove_rownames() %>%
+        filter(plotID%in%good_bird$plotID)%>%#take only "good" plots
         column_to_rownames(var = 'plotID')  
 
 
 #run species acc for one site        
-zz<-vegan::specaccum(bird_df[,-1], method = "exact", subset = bird_df$siteID=="DSNY")   
+#zz<-vegan::specaccum(bird_df[,-1], method = "exact", subset = bird_df$siteID=="DSNY")   
 
 
 #plot for one site
-plot(zz, ci.type = 'poly', ci.lty=0, col='blue', lwd=2, ci.col='lightblue', xlab="Plots",ylab="Species Richenss") #
+#plot(zz, ci.type = 'poly', ci.lty=0, col='blue', lwd=2, ci.col='lightblue', xlab="Plots",ylab="Species Richenss") #
 #title("OSBS Birds")
 #grid()
 
@@ -264,7 +260,7 @@ for(i in site_list) {
 
 #this is the number of plots at each location
 plot_num<-bird_df%>%
-  count(siteID)
+          count(siteID)
 
 #plot numbers
 min(plot_num$n)
@@ -294,8 +290,8 @@ matrixe
 
 
 #extract area and sprich from one site and run 
-area<-na.omit(cumsum(matrixe[7,-1]))
-sp_rich<-unlist(rich[29])
+#area<-na.omit(cumsum(matrixe[7,-1]))
+#sp_rich<-unlist(rich[29])
 
 #plot sar for one site
 #model<-lm(log10(sp_rich)~log10(area))
@@ -329,7 +325,7 @@ for(i in 1:32){
 #data frame with parameters(note that c (intercept) is back transformed)
 bird_params
 
-write.csv(bird_params,"./data/bird_params_rar_plot.csv")
+write.csv(bird_params,"./Data/bird_params_rar_plot.csv")
 
 #fit multiple models#
 #fitC <- sar_multi(data = t_dat, obj = c("power", "loga", "monod"))
@@ -346,26 +342,6 @@ write.csv(bird_params,"./data/bird_params_rar_plot.csv")
 ####Mammals####
 good_mammal<-read.csv("data/mammal_plot_rar.csv",row=1)%>%#beetle plots that have been filtered for completeness
              filter(fit=="TRUE")
-
-mammal_df <- data_small_mammal %>% 
-          select(plotID, taxon_name) %>% 
-          mutate(present = 1) %>% 
-          group_by(plotID, taxon_name) %>% 
-          summarise(present = sum(present), .groups = "drop") %>%
-          pivot_wider(names_from = taxon_name, values_from = present, values_fill = 0) 
-
-# if you want to convert it to a matrix / data frame with row names
-#mammal_df = as.data.frame(mammal_df)
-#row.names(mammal_df) = mammal_df$plotID
-#mammal_df$plotID = NULL
-
-# if you just want presence/absence
-#mammal_df[mammal_df > 0] = 1
-
-
-
-
-
 
 
 mammal_df <- data_small_mammal%>% 
@@ -429,20 +405,20 @@ matrixe
 
 
 #extract area and sprich from one site and run 
-area<-na.omit(cumsum(matrixe[2,-1]))
-sp_rich<-unlist(rich[2])
+#area<-na.omit(cumsum(matrixe[2,-1]))
+#sp_rich<-unlist(rich[2])
 
 #for loop the sar_power function from the "sars" package over the site richness area data
 
 #make data frame for for loop
 mammal_params <- data.frame(matrix(NA,
-                                 nrow = 46,#change based on filtering
+                                 nrow = 40,#change based on filtering
                                  ncol = 2),
                           row.names =site_list)
 colnames(mammal_params)<-c("c","z")
 
 #run forloop extracting c and z parameters
-for(i in 1:46){#change based on filtering
+for(i in 1:40){#change based on filtering
   
   area<-na.omit(cumsum(matrixe[i,-1]))
   sp_rich<-unlist(rich[i])
