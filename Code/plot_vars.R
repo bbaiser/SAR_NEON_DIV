@@ -206,6 +206,5 @@ mammal_vars <- mammal_df %>%
                left_join(mammal_elev_vars,by="siteID")
 
 write.csv(mammal_vars,"./data/mammal_vars.csv")
-v
 
   
