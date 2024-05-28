@@ -9,6 +9,8 @@ library(lme4)
 library(lmerTest)
 library(DHARMa)
 library(car)
+
+
 #install.packages("semPaths")
 
 ####beetle####
@@ -40,12 +42,14 @@ comb_beetle<-beetle_params%>%
              left_join(site_data,by="siteID")%>%
              left_join(beetle_vars,by="siteID")%>%
              left_join(beetle_dist,by="siteID")%>%
-             subset(.,siteID!="GUAN"& siteID!="PUUM"& siteID!="LAJA"&siteID!="STER")#remove Puerto Rico and Hawaiian sites and STER as a massive outlier for c
-             #filter(percent>=.80)#to filter out sites with less than 40 obs# &siteID!="STER"
+             subset(.,siteID!="GUAN"& siteID!="PUUM"& siteID!="LAJA"&siteID!="STER")#%>%#remove Puerto Rico and Hawaiian sites and STER as a massive outlier for c
+             #filter(start_year<=2016)#to filter out sites with less than 40 obs# &siteID!="STER"
 
 #species richness model
 colnames(comb_beetle)
 hist(comb_beetle$n_observation, breaks = 15)
+hist(comb_beetle$c, breaks = 15)
+hist(comb_beetle$z, breaks = 15)
 
 #model without lat because lat and temp are colinear 
 beetle_rich<-lm(n_sp~aveDist+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_beetle)
@@ -58,14 +62,14 @@ plot(beetle_rich)
 
 
 #c model
-beetle_c<-lm(c~aveDist+n_sp+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_beetle)
+beetle_c<-lm(c~aveDist+n_sp+obsplot+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_beetle)
 
 vif(beetle_c)#no multicolinearity for c model
 summary(beetle_c)
 plot(beetle_c)
 
 #z model
-beetle_z<-lm(z~aveDist+c+n_sp+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_beetle)
+beetle_z<-lm(z~aveDist+c+n_sp+obsplot+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_beetle)
 
 vif(beetle_z)
 summary(beetle_z)
@@ -86,14 +90,14 @@ vif(beetle_elev)
 summary(beetle_elev)
 plot(beetle_elev) #point 35 is has high leverage
 
+
+#sem
 beetle_sem_mod<-psem(beetle_c,beetle_z,beetle_elev,beetle_nlcd,beetle_rich)
 
 
 summary(beetle_sem_mod)
-plot(beetle_sem_mod)
-
-
-
+sink("Outputs/beetle_sum.txt")
+on.exit(sink())
 ####Small_mammals####
 #get site data
 site_data<-read.csv("Data/NEON_Field_Site_Metadata_20220412.csv")%>%
@@ -123,14 +127,14 @@ comb_mammal<-mammal_params%>%
               left_join(site_data,by="siteID")%>%
               left_join(mammal_vars,by="siteID")%>%
               left_join(mammal_dist,by="siteID")%>%
-              subset(.,siteID!="GUAN"& siteID!="PUUM"& siteID!="LAJA")#remove puerto rico and Hawaiian sites 
+              subset(.,siteID!="GUAN"& siteID!="PUUM"& siteID!="LAJA"& siteID!="LENO"& siteID!="DSNY")#remove puerto rico and Hawaiian sites 
              
 
 #species richness model
 dim(comb_mammal)
 hist(comb_mammal$n_sp, breaks = 15)
-
-
+hist(comb_mammal$c, breaks = 15)
+hist(comb_mammal$z, breaks = 15)
 
 #model without lat because lat and temp are colinear (could run atemp model) 
 mammal_rich<-lm(n_sp~aveDist+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_mammal)
@@ -141,14 +145,14 @@ plot(mammal_rich)
 
 
 #c model
-mammal_c<-lm(c~aveDist+n_sp+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_mammal)
+mammal_c<-lm(c~aveDist+n_sp+obsplot+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_mammal)
 
 vif(mammal_c)
 summary(mammal_c)
 plot(mammal_c)
 
 #z model
-mammal_z<-lm(z~aveDist+c+n_sp+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_mammal)
+mammal_z<-lm(z~aveDist+c+n_sp+obsplot+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_mammal)
 
 vif(mammal_z)
 summary(mammal_z)
@@ -171,11 +175,14 @@ plot(mammal_elev) #point 35 is has high leverage
 
 
 #piecwise sem model
-mammal_sem_mod<-psem(mammal_c,mammal_z,mammal_elev,mammal_nlcd,mammal_rich)
+mammal_sem_mod<-psem(mammal_c,mammal_z,mammal_elev,mammal_nlcd,mammal_rich,nlcd_div %~~%  obsplot,nlcd_div %~~% n_observation)
 
 
 summary(mammal_sem_mod)
 plot(mammal_sem_mod)
+
+sink("Outputs/mammal_sum.txt")
+sink()
 
 ####birds####
 
@@ -220,18 +227,17 @@ plot(comb_bird$n_observation,comb_bird$n_sp)
 
 
 #c model
-bird_c<-lm(c~aveDist+n_sp+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_bird)
+bird_c<-lm(c~aveDist+n_sp+obsplot+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_bird)
 
 vif(bird_c)
 summary(bird_c)
 plot(bird_c)
 
 #z model (based on AIC, use c over n_sp due to high correlation between c and nsp)
-bird_z<-lm(z~aveDist+c+n_sp+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_bird)
+bird_z<-lm(z~aveDist+c+n_sp+obsplot+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_bird)
 vif(bird_z)
 summary(bird_z)
 plot(bird_z) #point 35 is has high leverage
-
 
 #nlcd div  model
 bird_nlcd<-lm(nlcd_div~long+mean_temp+mean_precip+mean_elev, data=comb_bird)
@@ -254,6 +260,10 @@ bird_sem_mod<-psem(bird_c,bird_z,bird_elev,bird_nlcd,bird_rich)
 
 summary(bird_sem_mod)
 plot(bird_sem_mod)
+
+
+sink("Outputs/bird_sum.txt")
+sink()
 
 ####plants####
 
@@ -280,12 +290,14 @@ comb_plant<-plant_params%>%
             left_join(site_data,by="siteID")%>%
             left_join(plant_vars,by="siteID")%>%
             left_join(plant_dist,by="siteID")%>%
-            subset(.,siteID!="GUAN"&siteID!="PUUM"&siteID!="LAJA")#remove puerto rico and Hawaii sites
+            subset(.,siteID!="GUAN"&siteID!="PUUM"&siteID!="LAJA"&siteID!="DSNY"&siteID!="JERC"&siteID!="TEAK")#remove puerto rico and Hawaii sites
             #filter(n_observation>=20)#to filter out sites with less than 40 obs
 
 #species richness model
 colnames(comb_plant)
 hist(comb_plant$n_sp, breaks = 15)
+hist(comb_plant$c, breaks = 15)
+hist(comb_plant$z, breaks = 15)
 
 #model without lat because lat and temp are colinear (could run atemp model) 
 plant_rich<-lm(n_sp~aveDist+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_plant)
@@ -297,14 +309,14 @@ plot(comb_plant$n_observation,comb_plant$n_sp)
 
 
 #c model
-plant_c<-lm(c~aveDist+n_sp+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_plant)
+plant_c<-lm(c~aveDist+n_sp+obsplot+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_plant)
 
 vif(plant_c)
 summary(plant_c)
 plot(plant_c)
 
 #z model(deal with n_sp,nobs_c colinerity )
-plant_z<-lm(z~aveDist+c+n_sp+n_observation+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_plant)
+plant_z<-lm(z~aveDist+c+n_sp+obsplot+long+mean_temp+mean_precip+mean_elev+nlcd_div+elv_cv, data=comb_plant)
 
 vif(plant_z)
 
@@ -322,14 +334,14 @@ plot(plant_nlcd) #point 35 is has high leverage
 
 #elev_cv  model
 plant_elev<-lm(elv_cv~long+mean_temp+mean_precip+mean_elev, data=comb_plant)
-is.na(comb_plant)
+
 vif(plant_elev)
 summary(plant_elev)
 plot(plant_elev) #point 35 is has high leverage
 
 
 #piecwise sem model
-plant_sem_mod<-psem(plant_c,plant_z,plant_elev,plant_nlcd,plant_rich,nlcd_div %~~% n_observation)
+plant_sem_mod<-psem(plant_c,plant_z,plant_elev,plant_nlcd,plant_rich)
 nlcd_div %~~% n_observation
 
 
