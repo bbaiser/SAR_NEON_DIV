@@ -31,6 +31,8 @@ lm<-split(beetle_df,beetle_df$plotID)%>%
     lapply(., function(x)x[,-1 ])%>%
     lapply(.,t)  
 
+zz<-lm$ABBY_002
+
 #run iNEXT3D
 ass<-ObsAsy3D(lm, diversity = 'TD', q = c(0),
               datatype = "incidence_raw")
